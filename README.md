@@ -27,10 +27,10 @@ Assumes a GPS fix
  
 Assumes GPRMC or GPGGA sentences which contain UTC time after "GPRMC," or "GPGGA,"
  
->$GPRMC,170805.000,A,5337.5945,N,00300.7381,W,0.00,281.17,250523,,,D*7D
->$GPVTG,281.17,T,,M,0.00,N,0.01,K,D*34
->$PGTOP,11,3*6F
->$GPGGA,170806.000,5337.5945,N,00300.7381,W,2,9,1.13,4.2,M,49.5,M,0000,0000*40
+> $GPRMC,170805.000,A,5337.5945,N,00300.7381,W,0.00,281.17,250523,,,D*7D
+> $GPVTG,281.17,T,,M,0.00,N,0.01,K,D*34
+> $PGTOP,11,3*6F
+> $GPGGA,170806.000,5337.5945,N,00300.7381,W,2,9,1.13,4.2,M,49.5,M,0000,0000*40
  
  
 The "GenGetCountryData" OS call may or may not be meaningless on the MC - certainly its clock has no concept of "Summer Time"
