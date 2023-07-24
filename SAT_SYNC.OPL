@@ -1,0 +1,183 @@
+REM 
+REM Psion Series MC/3/3a time setting via serially attached GPS receiver that outputs NMEA
+REM 
+REM Uses the CALL $058B to retrieve the "country data" structure - this includes UTC offset (in minutes) and "Summer Time" flag
+REM After opening the serial port we get 255 bytes of NMEA - LOCate GPRMC, get GPS traceable UTC time from next 7-12 bytes
+REM calc time (in seconds from 1/1/1970) from that and UTC offset and "Summer Time"
+REM (as Hex $nnnnNNNN - split into hi & low part $nnnn & $NNNN or just by simple maths ;-) )
+REM call OS function $038B to set the time
+REM 
+REM Add a "delay processing time" fudge factor of ... 1s?
+REM 
+REM Time is expressed as:
+REM 
+REM 1690166270 or $64BDE3F3 (32-bit number) - i.e. split into $64BD & $E3F3 as above
+REM 
+REM Tested working on the MC/Series 3/Series 3a
+REM 
+REM Assumes a GPS receiver attached to the serial port, running at 9600 8N1
+REM Assumes a GPS fix
+REM 
+REM Assumes GPRMC or GPGGA sentences which contain UTC time after "GPRMC," or "GPGGA,"
+REM 
+REM $GPRMC,170805.000,A,5337.5945,N,00300.7381,W,0.00,281.17,250523,,,D*7D
+REM $GPVTG,281.17,T,,M,0.00,N,0.01,K,D*34
+REM $PGTOP,11,3*6F
+REM $GPGGA,170806.000,5337.5945,N,00300.7381,W,2,9,1.13,4.2,M,49.5,M,0000,0000*40
+REM 
+REM 
+REM The "GenGetCountryData" OS call may or may not be meaningless on the MC - certainly its clock has no concept of "Summer Time"
+REM like the 3/3a does. So stime% is set to 1 in the MC's OPL to get UTC to BST working (in summer!). Also (obviously!) all the 
+REM graphics commands such as gAT, gPRINT, etc. are meaningless on the MC (I also removed them from the Series 3 code too). 
+REM 
+REM I also had to change the sentence to search for to GPGGA rather than GPRMC on the S3 & MC, possibly something to do with 
+REM serial overruns or something else entirely...?
+REM 
+REM DISCLAIMER: THIS IS BARELY WORKING CODE! There is minimal error checking, lot's of superflous variables & commented out code
+REM             Shared in the hope it might prove useful to someone. somewhere ;-)
+REM 
+REM 
+REM  :: Chris Farrow @zedstarr July 2023 ::
+REM 
+REM 
+
+	PROC main:
+	  local w%
+		
+	  statuswin on :font -$3fff,0
+	  w%=gcreate(0,0,416,160,1) :gborder 0 :gtmode 3
+	  guse w%
+	  gfont 4  
+		
+	  settime:
+	  get
+
+	ENDP
+
+	PROC rsset:(baud%,parity%,data%,stop%,hand%,term&)
+	  LOCAL frame%,srchar%(6),dummy%,err%
+	  frame%=data%-5
+	  IF stop%=2 :frame%=frame% OR 16 :ENDIF
+	  IF parity% :frame%=frame% OR 32 :ENDIF
+	  srchar%(1)=baud% OR (baud%*256)
+	  srchar%(2)=frame% OR (parity%*256)
+	  srchar%(3)=(hand% AND 255) OR $1100
+	  srchar%(4)=$13
+	  POKEL ADDR(srchar%(5)),term&
+	  err%=IOW(-1,7,srchar%(1),dummy%)
+	  IF err% :RAISE err% :ENDIF
+	ENDP
+
+	PROC settime:
+	  LOCAL ret%,pbuf%,buf$(255),end%,len%,loc%
+	  local ax%,bx%,cx%,dx%
+	  local htim&,ltim&
+	  local htim%,ltim%,ltim1%,ltim2%
+	  local yr%,mo%,dy%,hr%,mn%,sc%,yday%
+	  local dy2&,tm2&,tim$(6),time$(12),tim&
+	  local cdata$(40),cBuf%,offset%,stime%
+	  
+	  gat 10,20
+	  gprint "Setting system time from attached GPS"
+	  
+	  rem Get Country Data - find summertime flag and UTC offset
+	  cBuf%=addr(cdata$)+1
+	  ret%=CALL($058b,cBuf%)
+	  pokeb addr(cdata$),40
+	  
+	  rem summer time bitmap is at addr(cdata$)+26
+	  rem UTC offset in minutes is at addr(cdata$)+3
+	  
+	  stime%=peekb(cBuf%+25)
+	  offset%=peekw(cBuf%+2)
+
+	  gat 10,40
+	  
+	  if stime% AND 1
+	    gprint "Summer Time is On, UTC offset is",offset%/60,"hr"
+	  else
+	    gprint "UTC offset is",offset%/60,"hr"
+	  endif
+	  
+	  gat 10,60
+	  
+	  gPRINT "Finding $GPRMC sentence in NMEA:"
+	  gupdate off
+	  
+	  LOPEN "TTY:A"
+	  REM receive at 9600 with Xon/RTS/CTS h/shake
+	  rsset:(15,0,8,1,7,&0)
+	  pBuf%=ADDR(buf$)
+	  
+	  DO
+
+	    REM read max 255 bytes, after leading count byte
+	    len%=255
+	    ret%=IOW(-1,1,#UADD(pbuf%,1),len%)
+	    POKEB pbuf%,len%   REM len% = length actually read
+	    loc%=loc(buf$,"GPRMC")
+	    
+	  UNTIL loc%
+
+	  rem possible alternative method ??? - get systime now and calc offset to UTC??? 
+	  rem get systime sometime later, add calculated offset, then set time?
+
+	  tim$=mid$(buf$,loc%+6,6)
+	  
+	  gat 10,80
+	  gprint "UTC is: ";tim$
+	  
+	  dy2&=days(day,month,year)
+	  tm2&=val(left$(tim$,2))*int(3600)+val(mid$(tim$,3,2))*60+val(right$(tim$,2))+1   rem 1s fudge factor
+
+	  if stime% AND 1
+	    tm2&=tm2&+3600
+	  endif
+
+	  rem time$=hex$(dts&:(dy2&,tm2&)+offset%*60)
+	  tim&=dts&:(dy2&,tm2&)+offset%*60
+	  
+	  htim&=tim&/65536
+	  ltim&=tim&-htim&*65536
+	  htim%=uadd(htim&,0)
+	  if ltim&>32767
+      ltim1%=peekb(addr(ltim&))
+      ltim2%=peekb(addr(ltim&)+1)
+	    pokeb addr(ltim%),ltim1%
+	    pokeb addr(ltim%)+1,ltim2%
+	  else
+	    ltim%=ltim&
+	  endif
+	  
+	  rem create HEX string of 32-bit time value
+	  rem split into high 16 bits and low 16 bits
+	  
+	  rem htim1%=uadd(eval("$"+(mid$(time$,1,1)+"*4096")),eval("$"+mid$(time$,2,1)+"*256"))
+	  rem htim2%=uadd(eval("$"+(mid$(time$,3,1)+"*16")),eval("$"+mid$(time$,4,1)))
+	  rem ltim1%=uadd(eval("$"+(mid$(time$,5,1)+"*4096")),eval("$"+mid$(time$,6,1)+"*256"))
+	  rem ltim2%=uadd(eval("$"+(mid$(time$,7,1)+"*16")),eval("$"+mid$(time$,8,1)))
+	  rem htim%=eval("$"+tim
+	  rem ltim%=uadd(ltim1%,ltim2%)
+	  
+	  rem print "htim& ",htim&
+	  rem print "ltim& ",ltim&
+	  rem get
+	  
+	  ax%=CALL($0389,0,htim%,ltim%) rem at last! SET THE TIME ;-) 
+	  
+	  gupdate on
+	  giprint "System Time set to "+left$(tim$,2)+":"+mid$(tim$,3,2)+":"+right$(tim$,2)+" UTC"
+	  gat 10,120 
+	  gprint "Press any key to exit..."
+
+	ENDP
+
+
+	PROC dts&:(d&,t&)
+	  local dt&
+	  
+	  dt&=d&
+	  dt&=dt&-days(1,1,1970)
+	  dt&=dt&*86400+t&
+	  return dt&
+	ENDP
