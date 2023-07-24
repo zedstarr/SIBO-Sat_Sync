@@ -40,9 +40,10 @@ graphics commands such as `gAT`, `gPRINT`, etc. are meaningless on the MC (I als
 I also had to change the sentence to search for to GPGGA rather than GPRMC on the S3 & MC, possibly something to do with 
 serial overruns or maybe something else entirely...?
 
-**DISCLAIMER**: THIS IS BARELY WORKING CODE! There is minimal error checking, lot's of superflous variables & commented out code
-            Shared in the hope it might prove useful to someone. somewhere ;-)
+### **DISCLAIMER**: THIS IS BARELY WORKING CODE! There is minimal error checking, lot's of superflous variables & commented out code
+###            Shared in the hope it might prove useful to someone. somewhere ;-)
 
+** DATE IS NOT SET - ONLY TIME! **
 
  :: Chris Farrow @zedstarr July 2023 ::
 
