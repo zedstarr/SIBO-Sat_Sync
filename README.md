@@ -7,6 +7,8 @@ Psion MC/Series 3/3a time setting via serially attached GPS receiver that output
 
 Uses the CALL $058B to retrieve the "country data" structure - this includes UTC offset (in minutes) and "Summer Time" flag
 
+NOTE: **DATE IS NOT SET - ONLY TIME!**
+
 After opening the serial port we 
 - get 255 bytes of NMEA 
 - LOCate GPRMC, get GPS traceable UTC time from next 7-12 bytes
@@ -43,7 +45,6 @@ serial overruns or maybe something else entirely...?
 ### **DISCLAIMER**: THIS IS BARELY WORKING CODE! There is minimal error checking, lot's of superflous variables & commented out code
 ###            Shared in the hope it might prove useful to someone. somewhere ;-)
 
-** DATE IS NOT SET - ONLY TIME! **
 
  :: Chris Farrow @zedstarr July 2023 ::
 
