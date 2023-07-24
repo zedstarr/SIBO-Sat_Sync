@@ -2,6 +2,7 @@
 Setting the system clock in Psion SIBO computers via an attached GPS
 
 =====================================================================================
+
 Psion MC/Series 3/3a time setting via serially attached GPS receiver that outputs NMEA
 
 Uses the CALL $058B to retrieve the "country data" structure - this includes UTC offset (in minutes) and "Summer Time" flag
