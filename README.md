@@ -7,9 +7,13 @@ Psion MC/Series 3/3a time setting via serially attached GPS receiver that output
 
 Uses the CALL $058B to retrieve the "country data" structure - this includes UTC offset (in minutes) and "Summer Time" flag
 
-After opening the serial port we get 255 bytes of NMEA - LOCate GPRMC, get GPS traceable UTC time from next 7-12 bytes
+After opening the serial port we get 255 bytes of NMEA - 
+LOCate GPRMC, get GPS traceable UTC time from next 7-12 bytes
+
 calc time (in seconds from 1/1/1970) from that and UTC offset and "Summer Time"
+
 (as Hex $nnnnNNNN - split into hi & low part $nnnn & $NNNN or just by simple maths ;-) )
+
 call OS function $038B to set the time
  
 Add a "delay processing time" fudge factor of ... 1s?
