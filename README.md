@@ -19,6 +19,7 @@ After opening the serial port we
 Time is expressed as:
 
 1690166270 or $64BDE3F3 (32-bit number) - i.e. can be split into $64BD & $E3F3 as below
+
 (as Hex $nnnnNNNN - split into hi & low part $nnnn & $NNNN or just by simple maths ;-) )
 
  
