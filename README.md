@@ -1,7 +1,7 @@
 # SIBO-Sat_Sync
 Setting the system clock in Psion SIBO computers via an attached GPS
 
-=====================================================================================
+---
 
 Psion MC/Series 3/3a time setting via serially attached GPS receiver that outputs NMEA
 
