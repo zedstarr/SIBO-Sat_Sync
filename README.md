@@ -50,3 +50,7 @@ serial overruns or maybe something else entirely...?
 
  :: Chris Farrow @zedstarr July 2023 ::
 
+![Series 3 sync'd via GPS](https://zedstarr.files.wordpress.com/2023/07/20230724_161316.jpg?w=1024)
+---
+![Even the old MC400 gets synchronised via GPS](https://zedstarr.files.wordpress.com/2023/07/screen2023-07-24-165052.png)
+
