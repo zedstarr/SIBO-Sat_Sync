@@ -45,7 +45,9 @@ I also had to change the sentence to search for to GPGGA rather than GPRMC on th
 serial overruns or maybe something else entirely...?
 
 ### **DISCLAIMER**: THIS IS BARELY WORKING CODE! There is minimal error checking, lot's of superflous variables & commented out code
-### **USE AT YOUR OWN RISK!**   Shared in the hope it might prove useful to someone. somewhere ;-)
+
+### **USE AT YOUR OWN RISK!**   
+Shared in the hope it might prove useful to someone. somewhere ;-)
 
 
  :: Chris Farrow @zedstarr July 2023 ::
