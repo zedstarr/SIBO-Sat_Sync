@@ -14,7 +14,7 @@ NOTES: **DATE IS NOT SET - ONLY TIME!**
 After opening the serial port we 
 - get 255 bytes of NMEA 
 - LOCate GPRMC, get GPS traceable UTC time from next 7-12 bytes
-- calc time (in seconds from 1/1/1970) from that and UTC offset and "Summer Time"
+- calc time (in seconds from 1/1/1970) from that and UTC offset and the Psion's "Summer Time" setting
 - Add a "delay processing time" fudge factor of ... 1s?
 - call OS function $038B to set the time
 
@@ -28,7 +28,7 @@ Time is expressed as:
 Tested working on the MC/Series 3/Series 3a
  
 Assumes a GPS receiver attached to the serial port, running at 9600 8N1
-Assumes a GPS fix
+Assumes the GPS has a valid fix
  
 Assumes GPRMC or GPGGA sentences which contain UTC time after "GPRMC," or "GPGGA,"
  
